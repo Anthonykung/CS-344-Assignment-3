@@ -11,3 +11,8 @@
  ****************************************************/
 
 #include "ashell.h"
+
+void asGetCmd() {
+  char uin[512];
+  scanf("%s", uin);
+}
