@@ -27,7 +27,7 @@ struct directory {
   struct directory* next;
 };
 
-int main(int argc, char *argv[]);
+int tmain(int argc, char *argv[]);
 int fileProcess();
 struct directory* getCurryDir();
 void removeCurryDir(struct directory* curryDir);
