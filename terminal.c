@@ -13,7 +13,7 @@
 #include "terminal.h"
 
 /* Main Function */
-int main(int argc, char *argv[]) {
+int tmain(int argc, char *argv[]) {
   anth();
   int checker = 1;
   /* Until Stated Otherwise, Keep Prompting User */
