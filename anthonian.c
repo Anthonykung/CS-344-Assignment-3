@@ -261,6 +261,8 @@ int anthIfFileExist(char* name) {
 
 /**
  * Check If String Is Empty
+ * Return 0 if empty
+ * Return 1 if not empty
  */
 int anthIsEmpty(const char* str) {
   if (strlen(str) == 0) {
