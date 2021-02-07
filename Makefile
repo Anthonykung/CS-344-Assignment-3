@@ -22,7 +22,7 @@ CC := gcc
 SDIR := .
 
 # Define Build Directory (Where you want the result to go)
-BDIR := .
+BDIR := ./build
 
 CFLAGS := -Wall -ansi -lncurses
 
@@ -45,7 +45,7 @@ $(BDIR)/$(IAEXE): $(OBJ)
 
 # For C Files
 $(BDIR)/%.c.o: %.c
-	mkdir -p $(dir BDIR)
+	mkdir -p $(BDIR)
 	$(CC) $(CVER) $(MFLAGS) $(CFLAGS) -c $< -o $@
 
 # For C++ Files
@@ -67,6 +67,12 @@ clean:
 .PHONY: cleandir
 cleandir:
 	rm -rf $(BDIR)
+
+# Run Program With Logs
+.PHONY: run
+run:
+	mkdir -p $(BDIR)/logs
+	$(BDIR)/$(IAEXE) 2> $(BDIR)/logs/$$(date +%Y-%m-%d-%H:%M:%S)-error.log
 
 # ZIP Directory
 .PHONY: zip

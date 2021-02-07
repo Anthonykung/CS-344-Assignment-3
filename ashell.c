@@ -18,28 +18,43 @@ int asMain(int argc, char* argv[]) {
   do {
     printf("\n%s: %s", anthStr("prmp"), anthStr("ori"));
     char uin[2048];
-    scanf("%s", uin);
+    fgets(uin, 2048, stdin);
+    fprintf(stderr, "\nInput: %s", uin);
     anthIOFlush(uin);
-    if (asCmdCheck(uin)) {
-      fprintf(stderr, "CMD Check Clear");
+    fprintf(stderr, "\nIO Flush Called");
+    if (asCmdCheck(uin) == 0) {
+      fprintf(stderr, "\nCMD Check Clear");
+    }
+    else if (strcmp(uin, "exit") == 0 || strcmp(uin, "Exit") == 0 || strcmp(uin, "EXIT") == 0) {
+      exitStatus = 1;
+      exitCode = 0;
     }
   }
-  while (!exitStatus);
+  while (exitStatus == 0);
+  anthBye();
   return exitCode;
 }
 
 int asCmdCheck(char* cmd) {
-  if (cmd[0] == '#') {
-    fprintf(stderr, "Commented Input");
-    return 125;  /* Error Code 125 - Ignore */
-  }
-  else if (strcmp(cmd, "") == 0 || anthIsEmpty(cmd) == 1) {
-    fprintf(stderr, "Empty Command");
+  if (cmd == NULL) {
+    fprintf(stderr, "\nInput Return NULL");
     return 3;  /* Error Code 3 - Invalid User Input */
+  }
+  else if (strcmp(cmd, "") == 0) {
+    fprintf(stderr, "\nEmpty Command");
+    return 3;  /* Error Code 3 - Invalid User Input */
+  }
+  else if (isspace(cmd[0])) {
+    fprintf(stderr, "\nCommented Input");
+    return 3;  /* Error Code 3 - Invalid User Input */
+  }
+  else if (cmd[0] == '#') {
+    fprintf(stderr, "\nCommented Input");
+    return 125;  /* Error Code 125 - Ignore */
   }
   else {
     /* CMD Check Passed */
-    fprintf(stderr, "CMD Check Passed");
+    fprintf(stderr, "\nCMD Check Passed");
     return 0;
   }
 }

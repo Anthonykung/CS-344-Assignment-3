@@ -194,6 +194,7 @@ void anthRmCharFromStr(char* str, char cmp) {
 void anthIOFlush(const char* str) {
   /* Check For Newline */
   if (strchr(str, '\n') == NULL){
+    fprintf(stderr, "\nIO Flush Clearing Input Buffer");
     /* Scan Until Newline */
     scanf("%*[^\n]");
     /* Take The Newline */
