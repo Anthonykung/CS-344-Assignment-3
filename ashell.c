@@ -14,6 +14,6 @@
 
 int asMain(int argc, char *argv[]) {
   printf("\n%s:%s", anthStr("prmp"), anthStr("ori"));
-  char uin[2050];
+  char uin[2048];
   scanf("%s", uin);
 }
