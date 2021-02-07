@@ -34,14 +34,14 @@ void anth();
 int anthExtChecker(char* str, char* ext);
 int strtoi(const char* str);
 void anthRmCharFromStr(char* str, char cmp);
-void anthIOFlush(const char* str);
+void anthIOFlush(char* str);
 char* anthToLower(char* str);
 char* anthRmNln(char* str);
 void anthBye();
 int anthRand(int min, int max);
 int anthCheckPrefix(char* str, char* prefix);
 int anthIfFileExist(char* name);
-int anthIsEmpty(const char* str);
+int anthIsEmpty(char* str);
 
 struct anthStrArr {
   char** arr;
