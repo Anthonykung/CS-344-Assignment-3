@@ -71,4 +71,4 @@ cleandir:
 # ZIP Directory
 .PHONY: zip
 zip:
-	zip -r kungc_program3.zip ./
+	zip -r kungc_program4.zip ./
