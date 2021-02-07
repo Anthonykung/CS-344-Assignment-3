@@ -42,6 +42,9 @@ int anthRand(int min, int max);
 int anthCheckPrefix(char* str, char* prefix);
 int anthIfFileExist(char* name);
 int anthIsEmpty(const char* str);
+void anthLog(int debug, char* str);
+void anthLog2(int debug, char* str1, char* str2);
+char* anthGetSubString(char* str);
 
 struct anthStrArr {
   char** arr;

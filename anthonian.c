@@ -192,6 +192,7 @@ void anthRmCharFromStr(char* str, char cmp) {
  * Clear Input Buffer
  */
 void anthIOFlush(const char* str) {
+  fprintf(stderr, "\nIO Flush Input: [%s]", str);
   /* Check For Newline */
   if (strchr(str, '\n') == NULL){
     fprintf(stderr, "\nIO Flush Clearing Input Buffer");
@@ -200,6 +201,7 @@ void anthIOFlush(const char* str) {
     /* Take The Newline */
     scanf("%*c");
   }
+  fprintf(stderr, "\nIO Flush End");
 }
 
 char* anthToLower(char* str) {
@@ -210,12 +212,19 @@ char* anthToLower(char* str) {
   return str;
 }
 
+/**
+ * Remove Newline In A String
+ * Return the new string in char*
+ * Can accept pass by reference
+ */
 char* anthRmNln(char* str) {
+  fprintf(stderr, "\nRemove Newline");
   int i = 0;
   for(i = 0; str[i]; i++){
     if (str[i] == '\n')
     str[i] = '\0';
   }
+  fprintf(stderr, "\nRemove Newline Result: [%s]", str);
   return str;
 }
 
@@ -226,7 +235,7 @@ void anthBye() {
   printf("\n%s %s %s", anthStr("green"), "██╔══██╗  ╚██╔╝  ██╔══╝  ", anthStr("ori"));
   printf("\n%s %s %s", anthStr("green"), "██████╔╝   ██║   ███████╗", anthStr("ori"));
   printf("\n%s %s %s", anthStr("green"), "╚═════╝    ╚═╝   ╚══════╝", anthStr("ori"));
-  printf("\n");
+  printf("\n\n");
 }
 
 int anthRand(int min, int max) {
@@ -276,4 +285,26 @@ int anthIsEmpty(const char* str) {
     }
   }
   return 1;
+}
+
+void anthLog(int debug, char* str) {
+  if (debug) {
+    fprintf(stderr, "\n%s", str);
+  }
+}
+
+void anthLog2(int debug, char* str1, char* str2) {
+  if (debug) {
+    fprintf(stderr, "\n%s%s", str1, str2);
+  }
+}
+
+/**
+ * Get substring in double quotation ""
+ * Return NULL if nothing found
+ */
+char* anthGetSubString(char* str) {
+  char* result = NULL;
+  sscanf(str, "%*[^\"]'%[^\"]'", result);
+  return result;
 }

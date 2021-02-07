@@ -19,5 +19,17 @@
 
 int asMain(int argc, char *argv[]);
 int asCmdCheck(char* cmd);
+char** asBreakdown(char* str);
+
+struct asHistory {
+  int pid;
+  char** cmd;
+  int status;
+  int exited;
+  struct asHistory* prev;
+  struct asHistory* next;
+  struct asHistory* head;
+  struct asHistory* tail;
+};
 
 #endif

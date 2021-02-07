@@ -71,8 +71,20 @@ cleandir:
 # Run Program With Logs
 .PHONY: run
 run:
-	mkdir -p $(BDIR)/logs
-	$(BDIR)/$(IAEXE) 2> $(BDIR)/logs/$$(date +%Y-%m-%d-%H:%M:%S)-error.log
+	mkdir -p $(SDIR)/logs
+	echo "Log File: " $(SDIR)/logs/$$(date +%Y-%m-%d-%H:%M:%S)-error.log
+	$(BDIR)/$(IAEXE) debug 2> $(SDIR)/logs/$$(date +%Y-%m-%d-%H:%M:%S)-error.log
+	echo "Log File: " $(SDIR)/logs/$$(date +%Y-%m-%d-%H:%M:%S)-error.log
+
+# Delete Log Files (BEWARE OF YOUR ACTION)
+.PHONY: cleanlog
+cleanlog:
+	rm -rf $(SDIR)/logs/*.log
+
+# Delete Entire Log Directory (BEWARE OF YOUR ACTION)
+.PHONY: cleanlogdir
+cleanlogdir:
+	rm -rf $(SDIR)/logs
 
 # ZIP Directory
 .PHONY: zip

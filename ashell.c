@@ -12,22 +12,27 @@
 
 #include "ashell.h"
 
+int debug = 0;
+
 int asMain(int argc, char* argv[]) {
+  if (argv[1] && strcmp(argv[1], "debug") == 0) {
+    debug = 1;
+  }
   int exitStatus = 0;
   int exitCode = 0;
   do {
     printf("\n%s: %s", anthStr("prmp"), anthStr("ori"));
     char uin[2048];
     fgets(uin, 2048, stdin);
-    fprintf(stderr, "\nInput: %s", uin);
     anthIOFlush(uin);
-    fprintf(stderr, "\nIO Flush Called");
-    if (asCmdCheck(uin) == 0) {
-      fprintf(stderr, "\nCMD Check Clear");
-    }
-    else if (strcmp(uin, "exit") == 0 || strcmp(uin, "Exit") == 0 || strcmp(uin, "EXIT") == 0) {
-      exitStatus = 1;
-      exitCode = 0;
+    char* cmd = anthRmNln(uin);
+    if (asCmdCheck(cmd) == 0) {
+      anthLog(debug, "CMD Check Clear");
+      if (strcmp(anthToLower(cmd), "exit") == 0) {
+        anthLog(debug, "Exit Command Received\nExiting...");
+        exitStatus = 1;
+        exitCode = 0;
+      }
     }
   }
   while (exitStatus == 0);
@@ -37,24 +42,41 @@ int asMain(int argc, char* argv[]) {
 
 int asCmdCheck(char* cmd) {
   if (cmd == NULL) {
-    fprintf(stderr, "\nInput Return NULL");
+    anthLog(debug, "Input Return NULL");
     return 3;  /* Error Code 3 - Invalid User Input */
   }
   else if (strcmp(cmd, "") == 0) {
-    fprintf(stderr, "\nEmpty Command");
+    anthLog(debug, "Empty Command");
     return 3;  /* Error Code 3 - Invalid User Input */
   }
   else if (isspace(cmd[0])) {
-    fprintf(stderr, "\nCommented Input");
+    anthLog(debug, "Commented Input");
     return 3;  /* Error Code 3 - Invalid User Input */
   }
   else if (cmd[0] == '#') {
-    fprintf(stderr, "\nCommented Input");
+    anthLog(debug, "Commented Input");
     return 125;  /* Error Code 125 - Ignore */
   }
   else {
     /* CMD Check Passed */
-    fprintf(stderr, "\nCMD Check Passed");
+    anthLog(debug, "CMD Check Passed");
     return 0;
   }
+}
+
+char** asBreakdown(char* str) {
+  char** strArr = malloc(sizeof(char*));
+  int i = 1;
+  char* token = NULL;
+  /* Break down word surrounded by spaces */
+  do {
+    token = strtok_r(str, " ", &str);
+    anthLog2(debug, "token: ", token);
+    strArr[i] = calloc((strlen(token) + 1), sizeof(char));
+    strcpy(strArr[i], token);
+    anthLog2(debug, "strArr[i]: ", strArr[i]);
+    i++;
+    strArr = realloc(strArr, (sizeof(char*) * i));
+  } while (token != NULL);
+  return strArr;
 }
