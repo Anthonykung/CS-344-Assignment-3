@@ -61,7 +61,6 @@ clean:
 	rm -f $(BDIR)/*.d
 	rm -f $(BDIR)/$(IAEXE)
 	rm -rf $(BDIR)/kungc.movies.*
-	rm -f $(BDIR)/*.txt
 
 # Delete Entire Build Directory (BEWARE OF YOUR ACTION)
 .PHONY: cleandir
@@ -71,10 +70,12 @@ cleandir:
 # Run Program With Logs
 .PHONY: run
 run:
+	$(eval logFile := $(SDIR)/logs/$(shell date +%Y-%m-%d-%H:%M:%S)-error.log)
 	mkdir -p $(SDIR)/logs
-	echo "Log File: " $(SDIR)/logs/$$(date +%Y-%m-%d-%H:%M:%S)-error.log
-	$(BDIR)/$(IAEXE) debug 2> $(SDIR)/logs/$$(date +%Y-%m-%d-%H:%M:%S)-error.log
-	echo "Log File: " $(SDIR)/logs/$$(date +%Y-%m-%d-%H:%M:%S)-error.log
+	echo "Log File: " $(logFile)
+	$(BDIR)/$(IAEXE) debug 2> $(logFile)
+	echo "Program Ended"
+	echo "Log File: " $(logFile)
 
 # Delete Log Files (BEWARE OF YOUR ACTION)
 .PHONY: cleanlog
