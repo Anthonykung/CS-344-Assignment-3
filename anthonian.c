@@ -191,7 +191,7 @@ void anthRmCharFromStr(char* str, char cmp) {
 /**
  * Clear Input Buffer
  */
-void anthIOFlush(const char* str) {
+void anthIOFlush(char* str) {
   /* Check For Newline */
   if (strchr(str, '\n') == NULL){
     /* Scan Until Newline */
@@ -264,7 +264,7 @@ int anthIfFileExist(char* name) {
  * Return 0 if empty
  * Return 1 if not empty
  */
-int anthIsEmpty(const char* str) {
+int anthIsEmpty(char* str) {
   if (strlen(str) == 0) {
     return 0;
   }
