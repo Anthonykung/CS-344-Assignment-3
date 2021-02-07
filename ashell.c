@@ -20,6 +20,9 @@ int asMain(int argc, char* argv[]) {
     char uin[2048];
     scanf("%s", uin);
     anthIOFlush(uin);
+    if (asCmdCheck(uin)) {
+      fprintf(stderr, "CMD Check Clear");
+    }
   }
   while (!exitStatus);
   return exitCode;
@@ -35,7 +38,8 @@ int asCmdCheck(char* cmd) {
     return 3;  /* Error Code 3 - Invalid User Input */
   }
   else {
-    fprintf(stderr, "CMD Check Error");
+    /* CMD Check Passed */
+    fprintf(stderr, "CMD Check Passed");
     return 0;
   }
 }
