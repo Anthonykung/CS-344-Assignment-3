@@ -192,16 +192,13 @@ void anthRmCharFromStr(char* str, char cmp) {
  * Clear Input Buffer
  */
 void anthIOFlush(const char* str) {
-  fprintf(stderr, "\nIO Flush Input: [%s]", str);
   /* Check For Newline */
   if (strchr(str, '\n') == NULL){
-    fprintf(stderr, "\nIO Flush Clearing Input Buffer");
     /* Scan Until Newline */
     scanf("%*[^\n]");
     /* Take The Newline */
     scanf("%*c");
   }
-  fprintf(stderr, "\nIO Flush End");
 }
 
 char* anthToLower(char* str) {
@@ -218,13 +215,11 @@ char* anthToLower(char* str) {
  * Can accept pass by reference
  */
 char* anthRmNln(char* str) {
-  fprintf(stderr, "\nRemove Newline");
   int i = 0;
   for(i = 0; str[i]; i++){
     if (str[i] == '\n')
     str[i] = '\0';
   }
-  fprintf(stderr, "\nRemove Newline Result: [%s]", str);
   return str;
 }
 
@@ -291,6 +286,24 @@ void anthLog(int debug, char* str) {
   if (debug) {
     fprintf(stderr, "\n%s", str);
   }
+}
+
+void anthLogB(int debug, char* str1, char* str2) {
+  if (debug) {
+    fprintf(stderr, "\n%s: [%s]", str1, str2);
+  }
+}
+
+/**
+ * Write to log file
+ * Use sprintf to combine multiple string
+ * Ex: sprintf(dst, "%s\n", src);
+ */
+void anthLogF(char* str) {
+  char file[512];
+  sprintf(file, "%s/%d.txt", dir, year);
+  int fd = open(str, O_RDWR | O_APPEND | O_CREAT | O_TRUNC, 0644);
+  write(fd, str, strlen(str));
 }
 
 void anthLog2(int debug, char* str1, char* str2) {
