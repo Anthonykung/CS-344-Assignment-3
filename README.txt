@@ -26,7 +26,7 @@ To build the program, simply use the Anthonian Universal C/C++ Makefile by runni
 
 ## Usage
 
-To use the program, simply use `./movies_by_year` and follow the prompts.
+To use the program, simply use `./smallsh` and follow the prompts.
 
 ## Contributing
 
