@@ -27,15 +27,15 @@ int asMain(int argc, char* argv[]) {
 
 int asCmdCheck(char* cmd) {
   if (cmd[0] == '#') {
-    fprintf(stderr, "Commented Input");
+    printf("Commented Input");
     return 125;  /* Error Code 125 - Ignore */
   }
   else if (strcmp(cmd, "") == 0 || anthIsEmpty(cmd) == 1) {
-    fprintf(stderr, "Empty Command");
+    printf("Empty Command");
     return 3;  /* Error Code 3 - Invalid User Input */
   }
   else {
-    fprintf(stderr, "CMD Check Error");
+    printf("CMD Check Error");
     return 0;
   }
 }
