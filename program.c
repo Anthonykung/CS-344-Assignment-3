@@ -11,11 +11,13 @@
  ****************************************************/
 
 #include "program.h"
+#include "ashell.h"
 
 /**
  * Program Manager Function
  * Used to call functions from main
  */
 int main(int argc, char *argv[]) {
-  return 0;
+  anth();
+  return asMain(argc, argv);
 }
