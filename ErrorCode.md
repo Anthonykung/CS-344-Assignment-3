@@ -4,4 +4,5 @@
 | ----------------- | ------------------ |
 | 0                 | No Error - Success |
 | 1                 | General Error      |
-| 2                 | 
+| 2                 | Misuse of shell built-ins |
+| 126               | 
