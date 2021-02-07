@@ -34,7 +34,7 @@ void anth();
 int anthExtChecker(char* str, char* ext);
 int strtoi(const char* str);
 void anthRmCharFromStr(char* str, char cmp);
-void anthIOFlush(char* str);
+void anthIOFlush(const char* str);
 char* anthToLower(char* str);
 char* anthRmNln(char* str);
 void anthBye();
