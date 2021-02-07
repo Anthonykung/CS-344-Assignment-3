@@ -188,7 +188,7 @@ void anthRmCharFromStr(char* str, char cmp) {
   str[j] = '\0';
 }
 
-void anthIOFlush(char* str) {
+void anthIOFlush(const char* str) {
   /* Check For Newline */
   if (strchr(str, '\n') == NULL){
     /* Scan Until Newline */
