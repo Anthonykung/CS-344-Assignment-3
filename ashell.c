@@ -30,7 +30,7 @@ int asCmdCheck(char* cmd) {
     fprintf(stderr, "Commented Input");
     return 125;  /* Error Code 125 - Ignore */
   }
-  else if (cmd == "") {
+  else if (anthIsEmpty(cmd)) {
     fprintf(stderr, "Empty Command");
     return 3;  /* Error Code 3 - Invalid User Input */
   }
