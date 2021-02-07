@@ -15,6 +15,6 @@
 | 130               | System signal 2 - SIGINT           | SIGINT called - Control-C          |
 | 131               | System signal 3 - SIGQUIT          | SIGQUIT called - Control-\         |
 | 132               | System signal 4 - SIGILL           | SIGILL called                      |
+| 148               | System signal 20 - SIGTSTP         | SIGTSTP called                     |
 | 148               | System signal 20 - SIGTSTP         | SIGTSTP called - Control-Z         |
-| 132               | System signal 4 - SIGINFO          | SIGINFO called - Control-T         |
 | 255               | Exit code out of range             | Exit code exceed 0 - 255           |
