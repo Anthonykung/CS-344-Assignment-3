@@ -27,9 +27,14 @@ int asMain(int argc, char* argv[]) {
 
 int asCmdCheck(char* cmd) {
   if (cmd[0] == '#' || cmd == "") {
+    fprintf(stderr, "Empty Command");
+    return 0;
+  }
+  if (cmd[0] == '#' || cmd == "") {
+    fprintf(stderr, "Empty Command");
     return 0;
   }
   else {
-    return 1;
+    return 0;
   }
 }
