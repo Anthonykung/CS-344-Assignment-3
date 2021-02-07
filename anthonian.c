@@ -256,6 +256,12 @@ int anthIfFileExist(char* name) {
   }
 }
 
-int anthIsChar(int c) {
-  if (c == )
+int anthIsEmpty(char* str) {
+  int i = 0;
+  for (i = 0; i < strlen(str); i++) {
+    if (!isspace(str)) {
+      return 0;
+    }
+  }
+  return 1;
 }
