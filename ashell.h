@@ -18,5 +18,6 @@
 #include <unistd.h>
 
 int asMain(int argc, char *argv[]);
+int asCmdCheck(char* cmd);
 
 #endif
