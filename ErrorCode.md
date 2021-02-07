@@ -10,4 +10,6 @@
 | 126               | Command invoked cannot execute | Permision issues or not executable |
 | 127               | Command not found              | Invalid path or command typo       |
 | 128               | Invalid exit argument          | Exit code not an integer           |
-| 128 + n           | System signal 'n'              | 
+| 128 + n           | System signal 'n'              | System signal 'n' called           |
+| 130               | System signal 2 - Control-C    | System signal 2 called - Control-C |
+| 255               | Exit code out of range         | Exit code exceed 0 - 255           |
