@@ -13,5 +13,6 @@
 | 128 + n           | System signal 'n'                  | System signal 'n' called           |
 | 129               | System signal 1 - SIGHUP           | SIGHUP called                      |
 | 130               | System signal 2 - SIGINT           | SIGINT called - Control-C          |
-| 130               | System signal 3 - SIGINT           | SIGINT called - Control-C          |
+| 131               | System signal 3 - SIGQUIT          | SIGQUIT called                     |
+| 131               | System signal 3 - SIGQUIT          | SIGQUIT called                     |
 | 255               | Exit code out of range             | Exit code exceed 0 - 255           |
