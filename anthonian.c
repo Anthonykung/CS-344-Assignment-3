@@ -256,6 +256,9 @@ int anthIfFileExist(char* name) {
   }
 }
 
+/**
+ * Check If String Is Empty
+ */
 int anthIsEmpty(const char* str) {
   int i = 0;
   for (i = 0; i < strlen(str); i++) {
