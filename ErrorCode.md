@@ -15,4 +15,5 @@
 | 130               | System signal 2 - SIGINT           | SIGINT called - Control-C          |
 | 131               | System signal 3 - SIGQUIT          | SIGQUIT called                     |
 | 132               | System signal 4 - SIGILL           | SIGILL called                      |
+| 132               | System signal 4 - SIGILL           | SIGILL called                      |
 | 255               | Exit code out of range             | Exit code exceed 0 - 255           |
