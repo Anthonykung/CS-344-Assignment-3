@@ -24,14 +24,22 @@ int asMain(int argc, char* argv[]) {
     printf("\n%s: %s", anthStr("prmp"), anthStr("ori"));
     char uin[2048];
     fgets(uin, 2048, stdin);
+    anthLogB(debug, "IO Flush Input", uin);
     anthIOFlush(uin);
     char* cmd = anthRmNln(uin);
+    anthLogB(debug, "Remove Newline Result", cmd);
     if (asCmdCheck(cmd) == 0) {
       anthLog(debug, "CMD Check Clear");
       if (strcmp(anthToLower(cmd), "exit") == 0) {
         anthLog(debug, "Exit Command Received\nExiting...");
         exitStatus = 1;
         exitCode = 0;
+      }
+      else if (cmd[strlen(cmd) - 1] == '&') {
+        anthLog(debug, "Background Request Detected");
+      }
+      else {
+        anthLog(debug, "Foreground Request Detected");
       }
     }
   }
@@ -50,7 +58,7 @@ int asCmdCheck(char* cmd) {
     return 3;  /* Error Code 3 - Invalid User Input */
   }
   else if (isspace(cmd[0])) {
-    anthLog(debug, "Commented Input");
+    anthLog(debug, "Space Detected");
     return 3;  /* Error Code 3 - Invalid User Input */
   }
   else if (cmd[0] == '#') {
