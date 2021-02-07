@@ -35,6 +35,7 @@ int asCmdCheck(char* cmd) {
     return 3;  /* Error Code 3 - Invalid User Input */
   }
   else {
+    fprintf(stderr, "CMD Check Error");
     return 0;
   }
 }
