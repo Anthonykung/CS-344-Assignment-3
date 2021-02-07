@@ -12,8 +12,18 @@
 
 #include "ashell.h"
 
-int asMain(int argc, char *argv[]) {
-  printf("\n%s:%s", anthStr("prmp"), anthStr("ori"));
-  char uin[2048];
-  scanf("%s", uin);
+int asMain(int argc, char* argv[]) {
+  int exitStatus = 0;
+  int exitCode = 0;
+  do {
+    printf("\n%s:%s", anthStr("prmp"), anthStr("ori"));
+    char uin[2048];
+    scanf("%s", uin);
+  }
+  while (!exitStatus);
+  return exitCode;
+}
+
+int asCmdCheck(char* cmd) {
+  if
 }
