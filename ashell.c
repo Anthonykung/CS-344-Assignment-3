@@ -16,7 +16,7 @@ int asMain(int argc, char* argv[]) {
   int exitStatus = 0;
   int exitCode = 0;
   do {
-    printf("\n%s:%s", anthStr("prmp"), anthStr("ori"));
+    printf("\n%s: %s", anthStr("prmp"), anthStr("ori"));
     char uin[2048];
     scanf("%s", uin);
     anthIOFlush(uin);
