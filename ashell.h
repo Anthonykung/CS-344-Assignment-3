@@ -14,7 +14,9 @@
 #define ASHELL
 
 #include "anthonian.h"
+#include <sys/types.h>
+#include <unistd.h>
 
-
+int asMain(int argc, char *argv[]);
 
 #endif
