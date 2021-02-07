@@ -255,3 +255,7 @@ int anthIfFileExist(char* name) {
     return 0;
   }
 }
+
+int anthIsChar() {
+  
+}
