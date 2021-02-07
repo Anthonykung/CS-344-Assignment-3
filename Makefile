@@ -10,7 +10,7 @@
 ##########################################################
 
 # Define Executable Name
-IAEXE := movies_by_year
+IAEXE := smallsh
 
 # Define Standard Version
 CVER := -std=gnu99
