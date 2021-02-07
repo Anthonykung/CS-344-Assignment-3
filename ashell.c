@@ -26,13 +26,13 @@ int asMain(int argc, char* argv[]) {
 }
 
 int asCmdCheck(char* cmd) {
-  if (cmd[0] == '#' || cmd == "") {
-    fprintf(stderr, "Empty Command");
-    return 0;
+  if (cmd[0] == '#') {
+    fprintf(stderr, "Commented Input");
+    return 125;  /* Error Code 125 - Ignore */
   }
-  if (cmd[0] == '#' || cmd == "") {
+  if (cmd == "") {
     fprintf(stderr, "Empty Command");
-    return 0;
+    return 3;  /* Error Code 3 - Invalid User Input */
   }
   else {
     return 0;
