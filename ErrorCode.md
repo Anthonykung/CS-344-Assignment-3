@@ -10,4 +10,4 @@
 | 126               | Command invoked cannot execute | Permision issues or not executable |
 | 127               | Command not found              | Invalid path or command typo       |
 | 128               | Invalid exit argument          | Exit code not an integer           |
-| 128 + n           | Exit signal 'n'                | 
+| 128 + n           | System signal 'n'              | 
