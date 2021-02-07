@@ -19,11 +19,17 @@ int asMain(int argc, char* argv[]) {
     printf("\n%s:%s", anthStr("prmp"), anthStr("ori"));
     char uin[2048];
     scanf("%s", uin);
+    anthIOFlush(uin);
   }
   while (!exitStatus);
   return exitCode;
 }
 
 int asCmdCheck(char* cmd) {
-  if
+  if (cmd[0] == '#' || cmd == "") {
+    return 0;
+  }
+  else {
+    return 1;
+  }
 }
