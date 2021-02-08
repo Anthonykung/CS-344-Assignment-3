@@ -16,20 +16,23 @@
 #include "anthonian.h"
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/wait.h>
+#include <errno.h>
 
 int asMain(int argc, char *argv[]);
 int asCmdCheck(char* cmd);
 char** asBreakdown(char* str);
+struct asTrack* asTrackCon(struct asTrack* prev);
+void asTrackDec(struct asTrack* head);
 
-struct asHistory {
+struct asTrack {
   int pid;
   char** cmd;
   int status;
   int exited;
-  struct asHistory* prev;
-  struct asHistory* next;
-  struct asHistory* head;
-  struct asHistory* tail;
+  struct asTrack* prev;
+  struct asTrack* next;
+  struct asTrack* head;
 };
 
 #endif

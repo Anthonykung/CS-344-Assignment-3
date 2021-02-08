@@ -19,6 +19,11 @@
 #include <time.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
 
 const char* anthStr(char* arg);
 void anthdev();

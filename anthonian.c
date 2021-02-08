@@ -301,7 +301,9 @@ void anthLogB(int debug, char* str1, char* str2) {
  */
 void anthLogF(char* str) {
   char file[512];
-  sprintf(file, "%s/%d.txt", dir, year);
+  time_t curry = time(NULL);
+  struct tm* utcCurry = gmtime(&curry);
+  sprintf(file, "%d-%d-%d-%d:%d:%d-error.log", (utcCurry->tm_year + 1900), (utcCurry->tm_mon + 1), (utcCurry->tm_mday), (utcCurry->tm_hour), (utcCurry->tm_min), (utcCurry->tm_sec));
   int fd = open(str, O_RDWR | O_APPEND | O_CREAT | O_TRUNC, 0644);
   write(fd, str, strlen(str));
 }

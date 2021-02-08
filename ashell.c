@@ -20,7 +20,8 @@ int asMain(int argc, char* argv[]) {
   }
   int exitStatus = 0;
   int exitCode = 0;
-  do {
+  struct asTrack* ps = NULL;
+  while (exitStatus == 0) {
     printf("\n%s: %s", anthStr("prmp"), anthStr("ori"));
     char uin[2048];
     fgets(uin, 2048, stdin);
@@ -37,13 +38,41 @@ int asMain(int argc, char* argv[]) {
       }
       else if (cmd[strlen(cmd) - 1] == '&') {
         anthLog(debug, "Background Request Detected");
+        int child = fork();
+        if (child == 0) {
+          ps = asTrackCon(ps);
+          ps->pid = getpid();
+          ps->cmd = asBreakdown(cmd);
+          execvp(ps->cmd[0], &(*(ps->cmd)));
+          perror("\nChild Error");
+        }
+        else {
+          if (debug) {
+            fprintf(stderr, "\nChild Created ID: %s", ps->pid);
+          }
+          waitpid(child, &exitCode, WNOHANG);
+          kill(child, SIGTERM);
+          anthLog(debug, "Execution Complete");
+          ps->status = exitCode;
+          ps->exited = 1;
+        }
       }
       else {
         anthLog(debug, "Foreground Request Detected");
+        int child = fork();
+        if (child == 0) {
+          char** exCmd = asBreakdown(cmd);
+          execvp(exCmd[0], &(*(exCmd)));
+          perror("\nChild Error");
+        }
+        else {
+          waitpid(child, &exitCode, 0);
+          kill(child, SIGTERM);
+          anthLog(debug, "Execution Complete");
+        }
       }
     }
   }
-  while (exitStatus == 0);
   anthBye();
   return exitCode;
 }
@@ -51,15 +80,15 @@ int asMain(int argc, char* argv[]) {
 int asCmdCheck(char* cmd) {
   if (cmd == NULL) {
     anthLog(debug, "Input Return NULL");
-    return 3;  /* Error Code 3 - Invalid User Input */
+    return 124;  /* Error Code 124 - Invalid User Input */
   }
   else if (strcmp(cmd, "") == 0) {
     anthLog(debug, "Empty Command");
-    return 3;  /* Error Code 3 - Invalid User Input */
+    return 124;  /* Error Code 124 - Invalid User Input */
   }
   else if (isspace(cmd[0])) {
     anthLog(debug, "Space Detected");
-    return 3;  /* Error Code 3 - Invalid User Input */
+    return 124;  /* Error Code 124 - Invalid User Input */
   }
   else if (cmd[0] == '#') {
     anthLog(debug, "Commented Input");
@@ -73,18 +102,59 @@ int asCmdCheck(char* cmd) {
 }
 
 char** asBreakdown(char* str) {
-  char** strArr = malloc(sizeof(char*));
-  int i = 1;
+  char** strArr = calloc(2, sizeof(char*));
+  int i = 0;
   char* token = NULL;
   /* Break down word surrounded by spaces */
   do {
     token = strtok_r(str, " ", &str);
-    anthLog2(debug, "token: ", token);
-    strArr[i] = calloc((strlen(token) + 1), sizeof(char));
-    strcpy(strArr[i], token);
-    anthLog2(debug, "strArr[i]: ", strArr[i]);
-    i++;
-    strArr = realloc(strArr, (sizeof(char*) * i));
+    if (token != NULL) {
+      anthLog2(debug, "token: ", token);
+      strArr[i] = calloc((strlen(token) + 1), sizeof(char));
+      strcpy(strArr[i], token);
+      anthLog2(debug, "strArr[i]: ", strArr[i]);
+      i++;
+      strArr = realloc(strArr, (sizeof(char*) * (i + 1)));
+      strArr[i] = NULL;
+    }
   } while (token != NULL);
+  anthLog2(debug, "strArr[i]: ", strArr[i]);
   return strArr;
+}
+
+/**
+ * asTrack Constructor
+ * Take the previous struct as param
+ * If previous struct is NULL assume head
+ */
+struct asTrack* asTrackCon(struct asTrack* prev) {
+  struct asTrack* curry = malloc(sizeof(struct asTrack*));
+  curry->pid = 0;
+  curry->cmd = NULL;
+  curry->status = 0;
+  curry->exited = 0;
+  curry->prev = prev;
+  curry->next = NULL;
+  if (prev == NULL) {
+    curry->head = curry;
+  }
+  else {
+    curry->head = curry->prev->head;
+  }
+  curry->head->prev = curry;
+  return curry;
+}
+
+void asTrackDec(struct asTrack* head) {
+  while (head != NULL) {
+    if (head->prev != NULL) {
+      free(head->prev);
+    }
+    int i = 0;
+    while (head->cmd[i]) {
+      free(head->cmd[i]);
+      i++;
+    }
+    free(head);
+  }
 }
