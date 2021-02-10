@@ -15,7 +15,7 @@
 int debug = 0;
 
 int asMain(int argc, char* argv[]) {
-  anthPtn("pink", "Note: Commands are case sensitive, for debug log use [make run]");
+  anthPtn("pink", "Note: Commands are case sensitive, for debug log use [make debug]");
   if (argv[1] && strcmp(argv[1], "debug") == 0) {
     debug = 1;
   }
@@ -80,12 +80,14 @@ int asMain(int argc, char* argv[]) {
           waitpid(child, &exitCode, WNOHANG);
           execvp(ps->cmd[0], &(*(ps->cmd)));
           anthPtnApn("err", "Child Error: ", strerror(errno));
-          perror("\nChild Error");
+          if (debug) {
+            perror("\nChild Error");
+          }
           exit(1);
         }
         else {
-          perror("\nChild Error");
           if (debug) {
+            perror("\nChild Error");
             fprintf(stderr, "\nChild Created ID: %d", child);
           }
           ps->pid = waitpid(child, &exitCode, WNOHANG);
@@ -102,7 +104,6 @@ int asMain(int argc, char* argv[]) {
             anthLog(debug, "Execution Complete");
             ps->status = exitCode;
             ps->exited = 1;
-            perror("\nChild Error");
           }
         }
       }
@@ -120,7 +121,9 @@ int asMain(int argc, char* argv[]) {
             /* Make sure path is an array that ends with NULL */
             char* envp[] = {path, NULL};
             execvpe(exCmd[0], &(*(exCmd)), envp);
-            perror("\nChild Error");
+            if (debug) {
+              perror("\nChild Error");
+            }
             anthPtnApn("err", "Child Error: ", strerror(errno));
             exit(1);
           }
