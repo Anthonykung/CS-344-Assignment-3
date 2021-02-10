@@ -21,15 +21,22 @@
 
 int asMain(int argc, char *argv[]);
 int asCmdCheck(char* cmd);
-char** asBreakdown(char* str);
+char** asBreakdown(char* str, int pid);
 struct asTrack* asTrackCon(struct asTrack* prev);
 void asTrackDec(struct asTrack* head);
+int asPID(char* cmd);
+int asRedirectIn(char** cmd);
+int asRedirectOut(char** cmd);
+int asKillAll(struct asTrack* children);
+char** asRmSpace(char** str);
 
 struct asTrack {
   int pid;
   char** cmd;
   int status;
   int exited;
+  int fdin;
+  int fdout;
   struct asTrack* prev;
   struct asTrack* next;
   struct asTrack* head;

@@ -39,6 +39,7 @@ MFLAGS := $(IFLAGS) -MMD -MP
 # Build
 $(BDIR)/$(IAEXE): $(OBJ)
 	$(CC) $(CVER) $(CFLAGS) $(OBJ) -o $@
+	echo -e "\n\033[38;2;255;20;147m>_ Use \033[96mmake run\033[38;2;255;20;147m to enable debug logs\n"
 
 # Get rid of annoying messages
 -include $(DEP)

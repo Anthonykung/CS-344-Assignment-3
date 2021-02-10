@@ -1,0 +1,40 @@
+# Program Started, two empty lines required for ACU
+
+ls
+ls > junk
+status
+cat junk
+wc < junk > junk2
+wc < junk
+test -f badfile
+status
+wc < badfile
+status
+badfile
+sleep 5
+^C
+status &
+sleep 15 &
+ps
+# that was a blank command line, this is a comment line
+
+# the background sleep finally finished
+sleep 30 &
+kill -15 $ASLCPID
+# ASLCPID is our environment variable for last child's PID
+pwd
+cd
+pwd
+cd CS344
+pwd
+echo 4867
+echo $$
+^C^Z
+date
+sleep 5 &
+date
+^Z
+date
+sleep 5 &
+date
+exit

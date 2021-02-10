@@ -5,18 +5,30 @@ Small Shell program for CS 344 Assignment 3
 ## Content
 
 1. Intro
-2. Docs
-3. Build
-4. Usage
+2. Features / Checklist
+3. Docs
+4. Build
+5. Usage
     1. Normal Mode
     2. Debug Mode
-5. Contributing
-6. Security
-7. License
+6. Contributing
+7. Security
+8. License
 
 ## Intro
 
 The small shell program is a unix shell, that pretty much explains it.
+
+## Features / Checklist
+
+- [x] Command Prompt
+- [x] Comments & Blank Lines
+- [x] Expansion of Variable $$
+- [x] Built-in Commands
+- [x] Executing Other Commands
+- [x] Input & Output Redirection
+- [ ] Executing Commands in Foreground & Background
+- [ ] Signals SIGINT & SIGTSTP
 
 ## Docs
 

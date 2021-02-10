@@ -15,13 +15,24 @@
 int debug = 0;
 
 int asMain(int argc, char* argv[]) {
+  anthPtn("pink", "Note: Commands are case sensitive, for debug log use [make run]");
   if (argv[1] && strcmp(argv[1], "debug") == 0) {
     debug = 1;
   }
   int exitStatus = 0;
   int exitCode = 0;
   struct asTrack* ps = NULL;
+  int ppid = getpid();
+  int oristdin = dup(0);
+  int oristdout = dup(1);
+  if (debug) {
+    fprintf(stderr, "\nParent PID: %d", ppid);
+  }
   while (exitStatus == 0) {
+    int cpid = getpid();
+    if (debug) {
+      fprintf(stderr, "\nCurrent PID: %d", cpid);
+    }
     printf("\n%s: %s", anthStr("prmp"), anthStr("ori"));
     char uin[2048];
     fgets(uin, 2048, stdin);
@@ -31,54 +42,101 @@ int asMain(int argc, char* argv[]) {
     anthLogB(debug, "Remove Newline Result", cmd);
     if (asCmdCheck(cmd) == 0) {
       anthLog(debug, "CMD Check Clear");
-      if (strcmp(anthToLower(cmd), "exit") == 0) {
+      if (strcmp(cmd, "exit") == 0) {
         anthLog(debug, "Exit Command Received\nExiting...");
         exitStatus = 1;
         exitCode = 0;
       }
-      else if (strcmp(anthToLower(cmd), "status") == 0) {
-          printf("%s%s Last Exit Code: %d %s\n", anthStr("suc"), anthStr("prefix"), exitCode, anthStr("ori"));
+      else if (strcmp(cmd, "status") == 0) {
+        printf("%s%s Last Exit Code: %d %s\n", anthStr("suc"), anthStr("prefix"), exitCode, anthStr("ori"));
       }
       else if (cmd[0] == 'c' && cmd[1] == 'd') {
-          printf("%s%s Last Exit Code: %d %s\n", anthStr("suc"), anthStr("prefix"), exitCode, anthStr("ori"));
+        char** exCmd = asBreakdown(cmd, ppid);
+        if (exCmd[1] == NULL) {
+          chdir(getenv("HOME"));
+          printf("%s%s Current Directory Changed To: %s %s\n", anthStr("suc"), anthStr("prefix"), getenv("HOME"), anthStr("ori"));
+        }
+        else if (strcmp(exCmd[1], "~/") == 0) {
+          chdir(getenv("HOME"));
+          printf("%s%s Current Directory Changed To: %s %s\n", anthStr("suc"), anthStr("prefix"), getenv("HOME"), anthStr("ori"));
+        }
+        else {
+          chdir(exCmd[1]);
+          printf("%s%s Current Directory Changed To: %s %s\n", anthStr("suc"), anthStr("prefix"), getenv("PWD"), anthStr("ori"));
+        }
       }
       else if (cmd[strlen(cmd) - 1] == '&') {
         anthLog(debug, "Background Request Detected");
         cmd[strlen(cmd) - 1] = '\0';
+        ps = asTrackCon(ps);
+        ps->cmd = asBreakdown(cmd, ppid);
+        ps->fdin = asRedirectIn(ps->cmd);
+        ps->fdout = asRedirectOut(ps->cmd);
+        ps->cmd = asRmSpace(ps->cmd);
         int child = fork();
+        ps->pid = child;
         if (child == 0) {
-          ps = asTrackCon(ps);
-          ps->pid = getpid();
-          ps->cmd = asBreakdown(cmd);
           printf("%s%s Child ID: %d %s", anthStr("msg"), anthStr("prefix"), ps->pid, anthStr("ori"));
+          waitpid(child, &exitCode, WNOHANG);
           execvp(ps->cmd[0], &(*(ps->cmd)));
           anthPtnApn("err", "Child Error: ", strerror(errno));
           perror("\nChild Error");
+          exit(1);
         }
         else {
+          perror("\nChild Error");
           if (debug) {
-            fprintf(stderr, "\nChild Created ID: %d", ps->pid);
+            fprintf(stderr, "\nChild Created ID: %d", child);
           }
-          waitpid(child, &exitCode, WNOHANG);
-          kill(child, SIGTERM);
-          anthLog(debug, "Execution Complete");
-          ps->status = exitCode;
-          ps->exited = 1;
+          ps->pid = waitpid(child, &exitCode, WNOHANG);
+          if (ps->pid != 0) {
+            kill(child, SIGTERM);
+            if (ps->fdin != 0) {
+              close(ps->fdin);
+              dup2(oristdin, 0);
+            }
+            if (ps->fdout != 0) {
+              close(ps->fdout);
+              dup2(oristdout, 1);
+            }
+            anthLog(debug, "Execution Complete");
+            ps->status = exitCode;
+            ps->exited = 1;
+            perror("\nChild Error");
+          }
         }
       }
       else {
         anthLog(debug, "Foreground Request Detected");
-        int child = fork();
-        if (child == 0) {
-          char** exCmd = asBreakdown(cmd);
-          execvp(exCmd[0], &(*(exCmd)));
-          perror("\nChild Error");
-          anthPtnApn("err", "Child Error: ", strerror(errno));
-        }
-        else {
-          waitpid(child, &exitCode, 0);
-          kill(child, SIGTERM);
-          anthLog(debug, "Execution Complete");
+        char** exCmd = asBreakdown(cmd, ppid);
+        int fdin = asRedirectIn(exCmd);
+        int fdout = asRedirectOut(exCmd);
+        if (fdin >= 0 && fdout >= 0) {
+          exCmd = asRmSpace(exCmd);
+          int child = fork();
+          if (child == 0) {
+            /* Get path from env */
+            char* path = getenv("PATH");
+            /* Make sure path is an array that ends with NULL */
+            char* envp[] = {path, NULL};
+            execvpe(exCmd[0], &(*(exCmd)), envp);
+            perror("\nChild Error");
+            anthPtnApn("err", "Child Error: ", strerror(errno));
+            exit(1);
+          }
+          else {
+            waitpid(child, &exitCode, 0);
+            kill(child, SIGTERM);
+            if (fdin != 0) {
+              close(fdin);
+              dup2(oristdin, 0);
+            }
+            if (fdout != 0) {
+              close(fdout);
+              dup2(oristdout, 1);
+            }
+            anthLog(debug, "Execution Complete");
+          }
         }
       }
     }
@@ -111,7 +169,7 @@ int asCmdCheck(char* cmd) {
   }
 }
 
-char** asBreakdown(char* str) {
+char** asBreakdown(char* str, int pid) {
   char** strArr = calloc(2, sizeof(char*));
   int i = 0;
   char* token = NULL;
@@ -121,7 +179,14 @@ char** asBreakdown(char* str) {
     if (token != NULL) {
       anthLog2(debug, "token: ", token);
       strArr[i] = calloc((strlen(token) + 1), sizeof(char));
-      strcpy(strArr[i], token);
+      if (asPID(token)) {
+        char temp[2048];
+        sprintf(temp, "%d", pid);
+        strcpy(strArr[i], temp);
+      }
+      else {
+        strcpy(strArr[i], token);
+      }
       anthLog2(debug, "strArr[i]: ", strArr[i]);
       i++;
       strArr = realloc(strArr, (sizeof(char*) * (i + 1)));
@@ -130,6 +195,19 @@ char** asBreakdown(char* str) {
   } while (token != NULL);
   anthLog2(debug, "strArr[i]: ", strArr[i]);
   return strArr;
+}
+
+char** asRmSpace(char** str) {
+  int i = 0;
+  while (str[i] != NULL) {
+    if (strcmp(str[i], ">") == 0 || strcmp(str[i], "<") == 0) {
+      free(str[i]);
+      str[i] = NULL;
+      anthLog(debug, "Redirection detected, replacing with NULL");
+    }
+    i++;
+  }
+  return str;
 }
 
 /**
@@ -155,6 +233,9 @@ struct asTrack* asTrackCon(struct asTrack* prev) {
   return curry;
 }
 
+/**
+ * Deconstruct asTrack
+ */
 void asTrackDec(struct asTrack* head) {
   while (head != NULL) {
     if (head->prev != NULL) {
@@ -167,4 +248,68 @@ void asTrackDec(struct asTrack* head) {
     }
     free(head);
   }
+}
+
+int asRedirectIn(char** cmd) {
+  int i = 0;
+  int fd = 0;
+  while (cmd[i] != NULL) {
+    /* Input Redirect */
+    if (strcmp(cmd[i], "<") == 0) {
+      fd = open(cmd[i + 1], O_RDONLY);
+      if (fd < 0) {
+        anthPtnApn("err", "Unable to open file ", cmd[i + 1]);
+        perror("Unable to open file");
+      }
+      else {
+        if (dup2(fd, 0) == -1) {
+          anthPtn("err", "Redirection failed");
+          perror("Redirection failed");
+        }
+      }
+    }
+    i++;
+  }
+  return fd;
+}
+
+int asRedirectOut(char** cmd) {
+  int i = 0;
+  int fd = 0;
+  while (cmd[i] != NULL) {
+    /* Output Redirect */
+    if (strcmp(cmd[i], ">") == 0) {
+      fd = open(cmd[i + 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+      if (fd < 0) {
+        anthPtnApn("err", "Unable to open file ", cmd[i + 1]);
+        perror("Unable to open file");
+      }
+      else {
+        if (dup2(fd, 1) == -1) {
+          anthPtn("err", "Redirection failed");
+          perror("Redirection failed");
+        }
+      }
+    }
+    i++;
+  }
+  return fd;
+}
+
+int asKillAll(struct asTrack* children) {
+  while (children->next != NULL) {
+    if (debug) {
+      fprintf(stderr, "\n%sKilling PID: %d %s", anthStr("pink"), children->pid, anthStr("ori"));
+    }
+    kill(children->pid, SIGTERM);
+    children = children->next;
+  }
+  return 0;
+}
+
+int asPID(char* cmd) {
+  if (cmd[0] == '$' && cmd[1] == '$') {
+    return 1;
+  }
+  return 0;
 }

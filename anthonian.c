@@ -288,6 +288,9 @@ void anthLog(int debug, char* str) {
   }
 }
 
+/**
+ * Log with Bracketed str2
+ */
 void anthLogB(int debug, char* str1, char* str2) {
   if (debug) {
     fprintf(stderr, "\n%s: [%s]", str1, str2);
@@ -308,6 +311,9 @@ void anthLogF(char* str) {
   write(fd, str, strlen(str));
 }
 
+/**
+ * 2 string log
+ */
 void anthLog2(int debug, char* str1, char* str2) {
   if (debug) {
     fprintf(stderr, "\n%s%s", str1, str2);
