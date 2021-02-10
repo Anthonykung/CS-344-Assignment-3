@@ -36,19 +36,28 @@ int asMain(int argc, char* argv[]) {
         exitStatus = 1;
         exitCode = 0;
       }
+      else if (strcmp(anthToLower(cmd), "status") == 0) {
+          printf("%s%s Last Exit Code: %d %s\n", anthStr("suc"), anthStr("prefix"), exitCode, anthStr("ori"));
+      }
+      else if (cmd[0] == 'c' && cmd[1] == 'd') {
+          printf("%s%s Last Exit Code: %d %s\n", anthStr("suc"), anthStr("prefix"), exitCode, anthStr("ori"));
+      }
       else if (cmd[strlen(cmd) - 1] == '&') {
         anthLog(debug, "Background Request Detected");
+        cmd[strlen(cmd) - 1] = '\0';
         int child = fork();
         if (child == 0) {
           ps = asTrackCon(ps);
           ps->pid = getpid();
           ps->cmd = asBreakdown(cmd);
+          printf("%s%s Child ID: %d %s", anthStr("msg"), anthStr("prefix"), ps->pid, anthStr("ori"));
           execvp(ps->cmd[0], &(*(ps->cmd)));
+          anthPtnApn("err", "Child Error: ", strerror(errno));
           perror("\nChild Error");
         }
         else {
           if (debug) {
-            fprintf(stderr, "\nChild Created ID: %s", ps->pid);
+            fprintf(stderr, "\nChild Created ID: %d", ps->pid);
           }
           waitpid(child, &exitCode, WNOHANG);
           kill(child, SIGTERM);
@@ -64,6 +73,7 @@ int asMain(int argc, char* argv[]) {
           char** exCmd = asBreakdown(cmd);
           execvp(exCmd[0], &(*(exCmd)));
           perror("\nChild Error");
+          anthPtnApn("err", "Child Error: ", strerror(errno));
         }
         else {
           waitpid(child, &exitCode, 0);
