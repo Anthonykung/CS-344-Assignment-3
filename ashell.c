@@ -16,6 +16,8 @@ int debug = 0;
 int curryFPS = 0;
 int enBGP = 1;
 struct asTrack* ps = NULL;
+int exitStatus = 0;
+int exitCode = 0;
 
 int asMain(int argc, char* argv[]) {
   fflush(stdout);
@@ -23,8 +25,6 @@ int asMain(int argc, char* argv[]) {
   if (argv[1] && strcmp(argv[1], "debug") == 0) {
     debug = 1;
   }
-  int exitStatus = 0;
-  int exitCode = 0;
   /* Get Parent PID for $$ */
   int ppid = getpid();
   /* Saving current stds to return to */
@@ -95,46 +95,42 @@ int asMain(int argc, char* argv[]) {
       else if (enBGP == 1 && cmd[strlen(cmd) - 1] == '&') {
         anthLog(debug, "Background Request Detected");
         cmd[strlen(cmd) - 1] = '\0';
-        ps = asTrackCon(ps);
-        ps->cmd = asBreakdown(cmd, ppid);
-        ps->fdin = asRedirectIn(ps->cmd);
-        ps->fdout = asRedirectOut(ps->cmd);
-        ps->cmd = asRmSpace(ps->cmd);
-        int child = fork();
-        ps->pid = child;
-        if (child == 0) {
-          waitpid(child, &exitCode, WNOHANG);
-          /* Get path from env */
-          char* path = getenv("PATH");
-          /* Make sure path is an array that ends with NULL */
-          char* envp[] = {path, NULL};
-          execvpe(ps->cmd[0], &(*(ps->cmd)), envp);
-          anthPtnApn("err", "Child Error: ", strerror(errno));
-          if (debug) {
-            perror("\nChild Error");
-          }
-          exit(1);
-        }
-        else {
-          printf("%s%s Child Created ID: %d %s", anthStr("msg"), anthStr("prefix"), child, anthStr("ori"));
-          if (debug) {
-            perror("\nChild Error");
-            fprintf(stderr, "\nChild Created ID: %d", child);
-          }
-          ps->pid = waitpid(child, &exitCode, WNOHANG);
-          if (ps->pid != 0) {
-            kill(child, SIGTERM);
-            if (ps->fdin != 0) {
-              close(ps->fdin);
-              dup2(oristdin, 0);
+        char** exCmd = asBreakdown(cmd, ppid);
+        int fdin = asRedirectIn(exCmd);
+        int fdout = asRedirectOut(exCmd);
+        if (fdin >= 0 && fdout >= 0) {
+          exCmd = asRmSpace(exCmd);
+          int child = fork();
+          if (child == 0) {
+            /* Get path from env */
+            char* path = getenv("PATH");
+            /* Make sure path is an array that ends with NULL */
+            char* envp[] = {path, NULL};
+            execvpe(exCmd[0], &(*(exCmd)), envp);
+            if (debug) {
+              perror("\nChild Error");
             }
-            if (ps->fdout != 0) {
-              close(ps->fdout);
-              dup2(oristdout, 1);
+            anthPtnApn("err", "Child Error: ", strerror(errno));
+            exit(1);
+          }
+          else {
+            printf("%s%s Child Created ID: %d %s\n", anthStr("msg"), anthStr("prefix"), child, anthStr("ori"));
+            if (debug) {
+              perror("\nChild Error");
+              fprintf(stderr, "\nChild Created ID: %d", child);
+            }
+            int wpid = waitpid(child, &exitCode, WNOHANG);
+            if (wpid != 0) {
+              if (fdin != 0) {
+                close(fdin);
+                dup2(oristdin, 0);
+              }
+              if (fdout != 0) {
+                close(fdout);
+                dup2(oristdout, 1);
+              }
             }
             anthLog(debug, "Execution Complete");
-            ps->status = exitCode;
-            ps->exited = 1;
           }
         }
       }
@@ -397,6 +393,7 @@ void asHdChild(int signal) {
   int stats;
   if ((pid = waitpid(-1, &stats, WNOHANG)) > 0) {
     printf("\n%s%s Child PID %d successfully assassinated by %d - %s %s\n", anthStr("warn"), anthStr("prefix"), pid, stats, strsignal(stats), anthStr("ori"));
+    exitCode = stats;
   }
   fflush(stdout);
 }

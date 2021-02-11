@@ -27,7 +27,7 @@ The small shell program is a unix shell, that pretty much explains it.
 - [x] Built-in Commands
 - [x] Executing Other Commands
 - [x] Input & Output Redirection
-- [ ] Executing Commands in Foreground & Background
+- [x] Executing Commands in Foreground & Background
 - [ ] Signals SIGINT & SIGTSTP
 
 ## Docs
