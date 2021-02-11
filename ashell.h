@@ -18,6 +18,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <signal.h>
 
 int asMain(int argc, char *argv[]);
 int asCmdCheck(char* cmd);
@@ -29,6 +30,9 @@ int asRedirectIn(char** cmd);
 int asRedirectOut(char** cmd);
 int asKillAll(struct asTrack* children);
 char** asRmSpace(char** str);
+void asHdInt(int signal);
+void asHdStop(int signal);
+void asHdChild(int signal);
 
 struct asTrack {
   int pid;

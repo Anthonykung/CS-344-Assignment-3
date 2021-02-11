@@ -13,18 +13,45 @@
 #include "ashell.h"
 
 int debug = 0;
+int curryFPS = 0;
+int enBGP = 1;
+struct asTrack* ps = NULL;
 
 int asMain(int argc, char* argv[]) {
+  fflush(stdout);
   anthPtn("pink", "Note: Commands are case sensitive, for debug log use [make debug]");
   if (argv[1] && strcmp(argv[1], "debug") == 0) {
     debug = 1;
   }
   int exitStatus = 0;
   int exitCode = 0;
-  struct asTrack* ps = NULL;
+  /* Get Parent PID for $$ */
   int ppid = getpid();
+  /* Saving current stds to return to */
   int oristdin = dup(0);
   int oristdout = dup(1);
+  /* Signal Handling */
+
+  struct sigaction asCaInt = {{0}};
+  asCaInt.sa_handler = asHdInt;
+  sigfillset(&asCaInt.sa_mask);
+  sigaction(SIGINT, &asCaInt, NULL);
+  asCaInt.sa_flags = 0;
+
+  struct sigaction asCaStop = {{0}};
+  asCaStop.sa_handler = SIG_IGN;
+  sigfillset(&asCaStop.sa_mask);
+  sigaction(SIGTSTP, &asCaStop, NULL);
+  asCaStop.sa_flags = 0;
+
+  struct sigaction asCaChild = {{0}};
+  asCaChild.sa_handler = asHdChild;
+  sigfillset(&asCaChild.sa_mask);
+  sigaction(SIGCHLD, &asCaChild, NULL);
+  asCaChild.sa_flags = 0;
+
+  fflush(stdout);
+
   if (debug) {
     fprintf(stderr, "\nParent PID: %d", ppid);
   }
@@ -65,7 +92,7 @@ int asMain(int argc, char* argv[]) {
           printf("%s%s Current Directory Changed To: %s %s\n", anthStr("suc"), anthStr("prefix"), getenv("PWD"), anthStr("ori"));
         }
       }
-      else if (cmd[strlen(cmd) - 1] == '&') {
+      else if (enBGP == 1 && cmd[strlen(cmd) - 1] == '&') {
         anthLog(debug, "Background Request Detected");
         cmd[strlen(cmd) - 1] = '\0';
         ps = asTrackCon(ps);
@@ -76,9 +103,12 @@ int asMain(int argc, char* argv[]) {
         int child = fork();
         ps->pid = child;
         if (child == 0) {
-          printf("%s%s Child ID: %d %s", anthStr("msg"), anthStr("prefix"), ps->pid, anthStr("ori"));
           waitpid(child, &exitCode, WNOHANG);
-          execvp(ps->cmd[0], &(*(ps->cmd)));
+          /* Get path from env */
+          char* path = getenv("PATH");
+          /* Make sure path is an array that ends with NULL */
+          char* envp[] = {path, NULL};
+          execvpe(ps->cmd[0], &(*(ps->cmd)), envp);
           anthPtnApn("err", "Child Error: ", strerror(errno));
           if (debug) {
             perror("\nChild Error");
@@ -86,6 +116,7 @@ int asMain(int argc, char* argv[]) {
           exit(1);
         }
         else {
+          printf("%s%s Child Created ID: %d %s", anthStr("msg"), anthStr("prefix"), child, anthStr("ori"));
           if (debug) {
             perror("\nChild Error");
             fprintf(stderr, "\nChild Created ID: %d", child);
@@ -116,6 +147,7 @@ int asMain(int argc, char* argv[]) {
           exCmd = asRmSpace(exCmd);
           int child = fork();
           if (child == 0) {
+            curryFPS = 1;
             /* Get path from env */
             char* path = getenv("PATH");
             /* Make sure path is an array that ends with NULL */
@@ -129,6 +161,7 @@ int asMain(int argc, char* argv[]) {
           }
           else {
             waitpid(child, &exitCode, 0);
+            curryFPS = 0;
             kill(child, SIGTERM);
             if (fdin != 0) {
               close(fdin);
@@ -138,11 +171,19 @@ int asMain(int argc, char* argv[]) {
               close(fdout);
               dup2(oristdout, 1);
             }
+            if (WIFSIGNALED(exitCode)) {
+              anthPtnApn("err", "The Child has been successfully assassinated by signal", strsignal(WTERMSIG(exitCode)));
+            }
+            if (debug) {
+              fprintf(stderr, "\nChild Status: %d - %s", WTERMSIG(exitCode), strsignal(WTERMSIG(exitCode)));
+            }
             anthLog(debug, "Execution Complete");
           }
         }
       }
     }
+    /* CLEAR UIN HERE */
+    memset(uin, 0, sizeof(uin));
   }
   anthBye();
   return exitCode;
@@ -315,4 +356,47 @@ int asPID(char* cmd) {
     return 1;
   }
   return 0;
+}
+
+/**
+ * A Shell Handle SIGINT
+ */
+void asHdInt(int signal) {
+  /*write(STDOUT_FILENO, "Interrupt Signal Detected\n", 256);
+  if (curryFPS == 1) {
+    write(STDOUT_FILENO, "Assassinating The Child...\n", 256);
+  }
+  fflush(stdout);*/
+}
+
+/**
+ * A Shell Handle SIGTSTP
+ */
+void asHdStop(int signal) {
+  /*if (enBGP == 1) {
+    char* message = "WARNING: Foreground Only Mode Activated\n";
+    write(STDOUT_FILENO, message, 256);
+    enBGP = 0;
+  }
+  else if (enBGP == 0) {
+    char* message = "WARNING: Foreground Only Mode Deactivated\n";
+    write(STDOUT_FILENO, message, 256);
+    enBGP = 1;
+  }
+  fflush(stdout);*/
+}
+
+/**
+ * A Shell Handle SIGTSTP
+ */
+void asHdChild(int signal) {
+  /*char* message = "Child Termination Signal Detected\n";
+  write(STDOUT_FILENO, message, 256);
+  fflush(stdout);*/
+  int pid;
+  int stats;
+  if ((pid = waitpid(-1, &stats, WNOHANG)) > 0) {
+    printf("\n%s%s Child PID %d successfully assassinated by %d - %s %s\n", anthStr("warn"), anthStr("prefix"), pid, stats, strsignal(stats), anthStr("ori"));
+  }
+  fflush(stdout);
 }
