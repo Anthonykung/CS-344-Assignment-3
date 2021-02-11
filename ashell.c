@@ -18,6 +18,7 @@ int enBGP = 1;
 struct asTrack* ps = NULL;
 int exitStatus = 0;
 int exitCode = 0;
+struct asPids* children = NULL;
 
 int asMain(int argc, char* argv[]) {
   fflush(stdout);
@@ -37,9 +38,10 @@ int asMain(int argc, char* argv[]) {
   sigfillset(&asCaInt.sa_mask);
   sigaction(SIGINT, &asCaInt, NULL);
   asCaInt.sa_flags = 0;
+  signal(SIGINT, SIG_IGN);
 
   struct sigaction asCaStop = {{0}};
-  asCaStop.sa_handler = SIG_IGN;
+  asCaStop.sa_handler = asHdStop;
   sigfillset(&asCaStop.sa_mask);
   sigaction(SIGTSTP, &asCaStop, NULL);
   asCaStop.sa_flags = 0;
@@ -51,6 +53,8 @@ int asMain(int argc, char* argv[]) {
   asCaChild.sa_flags = 0;
 
   fflush(stdout);
+
+  /*children = asPidCon();*/
 
   if (debug) {
     fprintf(stderr, "\nParent PID: %d", ppid);
@@ -72,7 +76,7 @@ int asMain(int argc, char* argv[]) {
       if (strcmp(cmd, "exit") == 0) {
         anthLog(debug, "Exit Command Received\nExiting...");
         exitStatus = 1;
-        exitCode = 0;
+        exitCode = asWaitAll();
       }
       else if (strcmp(cmd, "status") == 0) {
         printf("%s%s Last Exit Code: %d %s\n", anthStr("suc"), anthStr("prefix"), exitCode, anthStr("ori"));
@@ -121,6 +125,7 @@ int asMain(int argc, char* argv[]) {
             }
             int wpid = waitpid(child, &exitCode, WNOHANG);
             if (wpid != 0) {
+              /*asPidAdd(children, child);*/
               if (fdin != 0) {
                 close(fdin);
                 dup2(oristdin, 0);
@@ -143,7 +148,6 @@ int asMain(int argc, char* argv[]) {
           exCmd = asRmSpace(exCmd);
           int child = fork();
           if (child == 0) {
-            curryFPS = 1;
             /* Get path from env */
             char* path = getenv("PATH");
             /* Make sure path is an array that ends with NULL */
@@ -156,6 +160,7 @@ int asMain(int argc, char* argv[]) {
             exit(1);
           }
           else {
+            curryFPS = child;
             waitpid(child, &exitCode, 0);
             curryFPS = 0;
             kill(child, SIGTERM);
@@ -358,28 +363,28 @@ int asPID(char* cmd) {
  * A Shell Handle SIGINT
  */
 void asHdInt(int signal) {
-  /*write(STDOUT_FILENO, "Interrupt Signal Detected\n", 256);
-  if (curryFPS == 1) {
-    write(STDOUT_FILENO, "Assassinating The Child...\n", 256);
+  anthPtn("warn", "Interrupt Signal Detected");
+  if (curryFPS != 0) {
+    anthPtn("warn", "Assassinating The Child");
+    kill(curryFPS, SIGTERM);
+    curryFPS = 0;
   }
-  fflush(stdout);*/
+  fflush(stdout);
 }
 
 /**
  * A Shell Handle SIGTSTP
  */
 void asHdStop(int signal) {
-  /*if (enBGP == 1) {
-    char* message = "WARNING: Foreground Only Mode Activated\n";
-    write(STDOUT_FILENO, message, 256);
+  if (enBGP == 1) {
+    anthPtn("warn", "WARNING: Foreground Only Mode Activated");
     enBGP = 0;
   }
   else if (enBGP == 0) {
-    char* message = "WARNING: Foreground Only Mode Deactivated\n";
-    write(STDOUT_FILENO, message, 256);
+    anthPtn("warn", "WARNING: Foreground Only Mode Deactivated");
     enBGP = 1;
   }
-  fflush(stdout);*/
+  fflush(stdout);
 }
 
 /**
@@ -394,6 +399,53 @@ void asHdChild(int signal) {
   if ((pid = waitpid(-1, &stats, WNOHANG)) > 0) {
     printf("\n%s%s Child PID %d successfully assassinated by %d - %s %s\n", anthStr("warn"), anthStr("prefix"), pid, stats, strsignal(stats), anthStr("ori"));
     exitCode = stats;
+    /*asPidRm(children, pid);*/
   }
   fflush(stdout);
+}
+
+int asWaitAll() {
+  /*
+  asPidFree(
+  */
+  return 0;
+}
+
+struct asPids* asPidCon() {
+  struct asPids* curry = malloc(sizeof(struct asPids*));
+  curry->pid = 0;
+  curry->head = curry;
+  curry->prev = NULL;
+  curry->next = NULL;
+  return curry;
+}
+
+void asPidAdd(struct asPids* curry, int pid) {
+  curry->pid = pid;
+  curry->next = asPidCon();
+  curry->next->head = curry->head;
+  curry->next->prev = curry;
+}
+
+void asPidRm(struct asPids* curry, int pid) {
+  curry = curry->head;
+  while (curry->next != NULL) {
+    if (curry->pid == pid) {
+      struct asPids* temp = curry;
+      temp->next->prev = temp->prev;
+      temp->prev->next = temp->next;
+    }
+    curry = curry->next;
+  }
+  curry = curry->head;
+}
+
+void asPidFree(struct asPids* curry, int pid) {
+  curry = curry->head;
+  while (curry->next != NULL) {
+    struct asPids* temp = curry;
+    curry = curry->next;
+    free(temp);
+  }
+  curry = curry->head;
 }

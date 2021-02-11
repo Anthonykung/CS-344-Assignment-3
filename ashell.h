@@ -33,6 +33,11 @@ char** asRmSpace(char** str);
 void asHdInt(int signal);
 void asHdStop(int signal);
 void asHdChild(int signal);
+int asWaitAll();
+struct asPids* asPidCon();
+void asPidAdd(struct asPids* curry, int pid);
+void asPidRm(struct asPids* curry, int pid);
+void asPidFree(struct asPids* curry, int pid);
 
 struct asTrack {
   int pid;
@@ -44,6 +49,13 @@ struct asTrack {
   struct asTrack* prev;
   struct asTrack* next;
   struct asTrack* head;
+};
+
+struct asPids {
+  int pid;
+  struct asPids* next;
+  struct asPids* prev;
+  struct asPids* head;
 };
 
 #endif
